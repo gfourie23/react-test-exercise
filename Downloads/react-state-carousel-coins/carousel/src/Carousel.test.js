@@ -1,6 +1,18 @@
-import { render, fireEvent } from "@testing-library/react";
+import React from "react";
+import { render, fireEvent, queryByTestId } from "@testing-library/react";
 import Carousel from "./Carousel";
 import TEST_IMAGES from "./_testCommon.js";
+
+it('renders without crashing', function () {
+  render (<Carousel />);
+});
+
+it('mathces snapshot', function () {
+  const { asFragment } = render(<Carousel />);
+  expect(asFragment()).toMatchSnapshot();
+});
+
+
 
 it("works when you click on the right arrow", function() {
   const { container } = render(
@@ -28,4 +40,55 @@ it("works when you click on the right arrow", function() {
   expect(
     container.querySelector('img[alt="testing image 2"]')
   ).toBeInTheDocument();
+});
+
+
+
+
+
+it("works when you click on the left arrow", function() {
+  const { container } = render(
+    <Carousel
+      photos={TEST_IMAGES}
+      title="images for testing"
+    />
+  );
+  // expect the second image to show, but not the first
+  expect(
+    container.querySelector('img[alt="testing image 1"]')
+  ).not.toBeInTheDocument();
+  expect(
+    container.querySelector('img[alt="testing image 2"]')
+  ).toBeInTheDocument();
+
+
+  // move back to start
+  const leftArrow = queryByTestId("left-arrow");
+  fireEvent.click(leftArrow);
+
+  // expect the first image to show, but not the second
+  expect(
+    container.querySelector('img[alt="testing image 1"]')
+  ).toBeInTheDocument();
+  expect(
+    container.querySelector('img[alt="testing image 2"]')
+  ).not.toBeInTheDocument();
+  });
+
+it("doesn't display left arrow on first image", function(){
+  const { queryByTestId } = render(<Carousel />);
+  const leftArrow = queryByTestId("left-arrow");
+  const rightArrow = queryByTestId("right-arrow");
+
+  expect(leftArrow).not.toBeInTheDocument();
+  expect(rightArrow).toBeInTheDocument();
+});
+
+it("doesn't display right arrow on last image", function () {
+  const { queryByTestId } = render(<Carousel />);
+  const leftArrow = queryByTestId("left-arrow");
+  const rightArrow = queryByTestId("right-arrow");
+  
+  expect (leftArrow).toBeInTheDocument();
+  expect(rightArrow).not.toBeInTheDocument();
 });
